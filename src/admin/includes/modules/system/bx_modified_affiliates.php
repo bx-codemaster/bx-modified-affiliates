@@ -128,9 +128,6 @@ class bx_modified_affiliates {
     // -----------------------------------------------------------------------------
     xtc_db_query("CREATE TABLE IF NOT EXISTS bx_affiliate_partner (
       bx_affiliate_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
-      bx_affiliate_lft int(11) NOT NULL COMMENT 'Nested-Set: linker Grenzwert (Partnerhierarchie/Tiers)',
-      bx_affiliate_rgt int(11) NOT NULL COMMENT 'Nested-Set: rechter Grenzwert (Partnerhierarchie/Tiers)',
-      bx_affiliate_root int(11) NOT NULL COMMENT 'Nested-Set: Root-ID des zugehörigen Baums',
       bx_affiliate_gender char(1) NOT NULL DEFAULT '' COMMENT 'Anrede m/f',
       bx_affiliate_firstname varchar(32) NOT NULL DEFAULT '' COMMENT 'Vorname',
       bx_affiliate_lastname varchar(32) NOT NULL DEFAULT '' COMMENT 'Nachname',

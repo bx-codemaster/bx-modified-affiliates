@@ -41,7 +41,7 @@ if ($affiliate_id > 0 && isset($orders_id)) {
                 
                 // In die von dir geplante Provisions-Tabelle schreiben (Beispiel-INSERT)
                 xtc_db_query("
-                    INSERT INTO bx_affiliate_commissions 
+                    INSERT INTO bx_affiliate_sales 
                     (orders_id, bx_affiliate_id, mlm_level, commission_amount, date_created, status) 
                     VALUES ({$orders_id}, " . (int)$partner['bx_affiliate_id'] . ", {$level}, {$commission_amount}, NOW(), 'pending')
                 ");

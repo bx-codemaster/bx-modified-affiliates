@@ -128,6 +128,7 @@ class bx_modified_affiliates {
     // -----------------------------------------------------------------------------
     xtc_db_query("CREATE TABLE IF NOT EXISTS bx_affiliate_partner (
       bx_affiliate_id int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+      bx_affiliate_parent_id int(11) UNSIGNED DEFAULT NULL COMMENT 'Übergeordneter Partner (Tier-Baum), NULL = Root',
       bx_affiliate_gender char(1) NOT NULL DEFAULT '' COMMENT 'Anrede m/f',
       bx_affiliate_firstname varchar(32) NOT NULL DEFAULT '' COMMENT 'Vorname',
       bx_affiliate_lastname varchar(32) NOT NULL DEFAULT '' COMMENT 'Nachname',
@@ -161,11 +162,11 @@ class bx_modified_affiliates {
       bx_affiliate_date_account_created datetime NOT NULL DEFAULT '1000-01-01 00:00:00' COMMENT 'Account-Erstellungsdatum',
       bx_affiliate_date_account_last_modified datetime NOT NULL DEFAULT '1000-01-01 00:00:00' COMMENT 'Letzte Änderung des Accounts',
       PRIMARY KEY (bx_affiliate_id),
-      KEY idx_bx_affiliate_root (bx_affiliate_root),
-      KEY idx_bx_affiliate_rgt (bx_affiliate_rgt),
-      KEY idx_bx_affiliate_lft (bx_affiliate_lft),
-      KEY idx_bx_affiliate_email (bx_affiliate_email_address)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Partner-/Affiliate-Stammdaten inkl. Nested-Set-Hierarchie für Tiers';");
+      KEY idx_bx_affiliate_parent_id (bx_affiliate_parent_id),
+      KEY idx_bx_affiliate_email (bx_affiliate_email_address),
+      CONSTRAINT fk_bx_affiliate_parent FOREIGN KEY (bx_affiliate_parent_id)
+          REFERENCES bx_affiliate_partner (bx_affiliate_id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Partner-/Affiliate-Stammdaten';");
 
     // -----------------------------------------------------------------------------
     // 2. Werbemittel (Banner)

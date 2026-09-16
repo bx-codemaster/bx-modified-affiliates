@@ -21,6 +21,8 @@
   define('BX_AFFILIATES_TEXT_NO_CHILD_CATEGORIES_OR_PRODUCTS', 'No partners found.');
   define('BX_AFFILIATES_TEXT_EDIT_PARTNER', 'Edit Partner');
   define('BX_AFFILIATES_TEXT_LIST_PARTNER', 'Partner List');
+  define('BX_AFFILIATES_TEXT_EVALUATION_TITLE', 'Affiliate Evaluation');
+  define('BX_AFFILIATES_TEXT_EVALUATION_PLACEHOLDER', 'Click, sales and commission statistics for this partner will appear here in a future release.');
 
   define('TABLE_HEADING_AFFILIATE_ID', 'Affiliate ID');
   define('TABLE_HEADING_LASTNAME', 'Last Name');

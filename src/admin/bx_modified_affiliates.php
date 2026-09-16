@@ -173,6 +173,47 @@
   }
   
   switch ($action) {
+    case 'update':
+      if ($acID > 0) {
+        $bx_gender        = in_array($_POST['bx_affiliate_gender'] ?? '', array('m', 'f', 'd'), true) ? $_POST['bx_affiliate_gender'] : '';
+        $bx_firstname     = trim((string)($_POST['bx_affiliate_firstname'] ?? ''));
+        $bx_lastname      = trim((string)($_POST['bx_affiliate_lastname'] ?? ''));
+        $bx_email         = trim((string)($_POST['bx_affiliate_email_address'] ?? ''));
+        $bx_company       = trim((string)($_POST['bx_affiliate_company'] ?? ''));
+        $bx_company_taxid = trim((string)($_POST['bx_affiliate_company_taxid'] ?? ''));
+        $bx_street        = trim((string)($_POST['bx_affiliate_street_address'] ?? ''));
+        $bx_postcode      = trim((string)($_POST['bx_affiliate_postcode'] ?? ''));
+        $bx_city          = trim((string)($_POST['bx_affiliate_city'] ?? ''));
+        $bx_country_id    = (int)($_POST['bx_affiliate_country_id'] ?? 0);
+
+        // Minimal-Validierung der Pflichtfelder. TODO: Fehler dem Nutzer im Formular
+        // anzeigen statt bei Ungültigkeit stillschweigend nicht zu speichern.
+        if ($bx_gender !== '' && $bx_firstname !== '' && $bx_lastname !== ''
+            && $bx_street !== '' && $bx_postcode !== '' && $bx_city !== '' && $bx_country_id > 0
+            && filter_var($bx_email, FILTER_VALIDATE_EMAIL)) {
+
+          xtc_db_query(
+            "UPDATE " . TABLE_BX_AFFILIATE_PARTNER . " SET
+               bx_affiliate_gender = '" . xtc_db_input($bx_gender) . "',
+               bx_affiliate_firstname = '" . xtc_db_input($bx_firstname) . "',
+               bx_affiliate_lastname = '" . xtc_db_input($bx_lastname) . "',
+               bx_affiliate_email_address = '" . xtc_db_input($bx_email) . "',
+               bx_affiliate_company = '" . xtc_db_input($bx_company) . "',
+               bx_affiliate_company_taxid = '" . xtc_db_input($bx_company_taxid) . "',
+               bx_affiliate_street_address = '" . xtc_db_input($bx_street) . "',
+               bx_affiliate_postcode = '" . xtc_db_input($bx_postcode) . "',
+               bx_affiliate_city = '" . xtc_db_input($bx_city) . "',
+               bx_affiliate_country_id = " . (int)$bx_country_id . ",
+               bx_affiliate_date_account_last_modified = NOW()
+             WHERE bx_affiliate_id = " . (int)$acID
+          );
+        }
+      }
+
+      // POST-Redirect-GET: verhindert erneutes Absenden bei Seiten-Reload
+      xtc_redirect(xtc_href_link(BX_FILENAME_AFFILIATES, xtc_get_all_get_params(array('action')) . 'action=edit'));
+      break; // case 'update'
+
     case 'edit':
 
       break; // case 'edit'
@@ -264,14 +305,16 @@
           <div class="clear"></div> 
 <?php 
 switch ($action) {
-  case 'edit': 
-    $affiliate_query = xtc_db_query("SELECT * FROM " . TABLE_BX_AFFILIATE_PARTNER . " WHERE bx_affiliate_id = '" . $acID . "'");
+  case 'edit':
+    $affiliate_query = xtc_db_query("SELECT * FROM " . TABLE_BX_AFFILIATE_PARTNER . " WHERE bx_affiliate_id = '" . (int)$acID . "'");
     $affiliate       = xtc_db_fetch_array($affiliate_query);
-    $aInfo           = new objectInfo($affiliate);
+    $aInfo           = $affiliate ? new objectInfo($affiliate) : null;
 
-echo '<pre>';
-print_r($aInfo);
-echo '</pre>';
+    $gender_values = array(
+      'm' => BX_MALE,
+      'f' => BX_FEMALE,
+      'd' => BX_DIVERSE,
+    );
 ?>
           <div class="bx-grid">
             <section class="bx-main-content">
@@ -282,326 +325,86 @@ echo '</pre>';
               </div>
 
               <article class="bx-panel">
-
-                  <table>
-                    <tr>
-                      <?php echo xtc_draw_form('affiliate', BX_FILENAME_AFFILIATES, xtc_get_all_get_params(array('action')) . 'action=update', 'post', 'onsubmit="return check_form();"'); ?>
-                      <td class="formAreaTitle"><?php echo CATEGORY_PERSONAL; ?></td>
-                    </tr>
-                    <tr>
-                      <td class="formArea">
-                        <table border="0" cellspacing="2" cellpadding="2">
-              <?php
-                  if (ACCOUNT_GENDER == 'true') {
-              ?>
-                        <tr>
-                          <td class="main"><?php echo ENTRY_GENDER; ?></td>
-                          <td class="main">
-                            <?php
-                            echo xtc_draw_radio_field('bx_affiliate_gender', 'm', false, $aInfo->bx_affiliate_gender) . '&nbsp;&nbsp;'
-                             . BX_MALE . '&nbsp;&nbsp;' 
-                             . xtc_draw_radio_field('bx_affiliate_gender', 'f', false, $aInfo->bx_affiliate_gender) . '&nbsp;&nbsp;' . BX_FEMALE
-                             . xtc_draw_radio_field('bx_affiliate_gender', 'd', false, $aInfo->bx_affiliate_gender) . '&nbsp;&nbsp;' . BX_DIVERSE
-                             ; ?></td>
-                        </tr>
-              <?php
-                  }
-              ?>
-                        <tr>
-                          <td class="main"><?php echo ENTRY_FIRST_NAME; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_firstname', $aInfo->bx_affiliate_firstname, 'maxlength="32"', true); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main"><?php echo ENTRY_LAST_NAME; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_lastname', $aInfo->bx_affiliate_lastname, 'maxlength="32"', true); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main"><?php echo ENTRY_EMAIL_ADDRESS; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_email_address', $aInfo->bx_affiliate_email_address, 'maxlength="96"', true); ?></td>
-                        </tr>
-                      </table></td>
-                    </tr>
-                    <tr>
-                      <td><?php echo xtc_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
-                    </tr>
-              <?php
-                if (BX_AFFILIATE_INDIVIDUAL_PERCENTAGE === 'True') {
-              ?>
-                    <tr>
-                      <td class="formAreaTitle"><?php echo TABLE_HEADING_COMMISSION; ?></td>
-                    </tr>
-                    <tr>
-                      <td class="formArea"><table border="0" cellspacing="2" cellpadding="2">
-                        <tr>
-                          <td class="main"><?php echo BX_ENTRY_AFFILIATE_COMMISSION; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_commission_percent', $aInfo->bx_affiliate_commission_percent, 'maxlength="5"'); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main"><?php echo BX_ENTRY_AFFILIATE_TIERS_ALLOWED; ?></td>
-                          <td class="main"><?php echo xtc_draw_checkbox_field('bx_affiliate_tiers_allowed', '', $aInfo->bx_affiliate_tiers_allowed); ?></td>
-                        </tr>
-                      </table></td>
-                    </tr>
-                    <tr>
-                      <td><?php echo xtc_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
-                    </tr>
-              <?php
-                  }
-              ?>
-                    <tr>
-                      <td class="formAreaTitle"><?php echo CATEGORY_COMPANY; ?></td>
-                    </tr>
-                    <tr>
-                      <td class="formArea"><table border="0" cellspacing="2" cellpadding="2">
-                        <tr>
-                          <td class="main"><?php echo ENTRY_COMPANY; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_company', $aInfo->bx_affiliate_company, 'maxlength="32"'); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main"><?php echo BX_ENTRY_AFFILIATE_COMPANY_TAXID; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_company_taxid', $aInfo->bx_affiliate_company_taxid, 'maxlength="64"'); ?></td>
-                        </tr>
-                      </table></td>
-                    </tr>
-                    <tr>
-                      <td><?php echo xtc_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
-                    </tr>
-                    <tr>
-                      <td class="formAreaTitle"><?php echo BX_CATEGORY_PAYMENT_DETAILS; ?></td>
-                    </tr>
-                    <tr>
-                      <td class="formArea"><table border="0" cellspacing="2" cellpadding="2">
-              <?php
-                if (BX_AFFILIATE_USE_PAYPAL == 'true') {
-              ?>
-                        <tr>
-                          <td class="main"><?php echo BX_ENTRY_AFFILIATE_PAYMENT_PAYPAL; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_payment_paypal', $aInfo->bx_affiliate_payment_paypal, 'maxlength="64"'); ?></td>
-                        </tr>
-              <?php
-                }
-                if (BX_AFFILIATE_USE_BANK == 'true') {
-              ?>
-                        <tr>
-                          <td class="main"><?php echo BX_ENTRY_AFFILIATE_PAYMENT_BANK_NAME; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_payment_bank_name', $aInfo->bx_affiliate_payment_bank_name, 'maxlength="64"'); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main"><?php echo BX_ENTRY_AFFILIATE_PAYMENT_BANK_BRANCH_NUMBER; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_payment_bank_branch_number', $aInfo->bx_affiliate_payment_bank_branch_number, 'maxlength="64"'); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main"><?php echo BX_ENTRY_AFFILIATE_PAYMENT_BANK_SWIFT_CODE; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_payment_bank_swift_code', $aInfo->bx_affiliate_payment_bank_swift_code, 'maxlength="64"'); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main"><?php echo BX_ENTRY_AFFILIATE_PAYMENT_BANK_ACCOUNT_NAME; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_payment_bank_account_name', $aInfo->bx_affiliate_payment_bank_account_name, 'maxlength="64"'); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main"><?php echo BX_ENTRY_AFFILIATE_PAYMENT_BANK_ACCOUNT_NUMBER; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_payment_bank_account_number', $aInfo->bx_affiliate_payment_bank_account_number, 'maxlength="64"'); ?></td>
-                        </tr>
-              <?php
-                }
-              ?>
-                      </table></td>
-                    </tr>
-                    <tr>
-                      <td><?php echo xtc_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
-                    </tr>
-                    <tr>
-                      <td class="formAreaTitle"><?php echo CATEGORY_ADDRESS; ?></td>
-                    </tr>
-                    <tr>
-                      <td class="formArea"><table border="0" cellspacing="2" cellpadding="2">
-                        <tr>
-                          <td class="main"><?php echo ENTRY_STREET_ADDRESS; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_street_address', $aInfo->bx_affiliate_street_address, 'maxlength="64"', true); ?></td>
-                        </tr>
-              <?php
-                if (ACCOUNT_SUBURB == 'true') {
-              ?>
-                        <tr>
-                          <td class="main"><?php echo ENTRY_SUBURB; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_suburb', $aInfo->bx_affiliate_suburb, 'maxlength="64"', false); ?></td>
-                        </tr>
-              <?php
-                }
-              ?>
-                        <tr>
-                          <td class="main"><?php echo ENTRY_CITY; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_city', $aInfo->bx_affiliate_city, 'maxlength="32"', true); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main"><?php echo ENTRY_POST_CODE; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_postcode', $aInfo->bx_affiliate_postcode, 'maxlength="8"', true); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main"><?php echo ENTRY_COUNTRY; ?></td>
-                          <td class="main"><?php echo xtc_draw_pull_down_menu('bx_affiliate_country_id', xtc_get_countries(), $aInfo->bx_affiliate_country_id, 'onChange="update_zone(this.form);"'); ?></td>
-                        </tr>
-              <?php
-                  if (ACCOUNT_STATE == 'true') {
-              ?>
-                        <tr>
-                          <td class="main"><?php echo ENTRY_STATE; ?></td>
-                          <td class="main"><?php echo xtc_draw_pull_down_menu('bx_affiliate_zone_id', xtc_prepare_country_zones_pull_down($aInfo->bx_affiliate_country_id), $aInfo->bx_affiliate_zone_id, 'onChange="resetStateText(this.form);"'); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main">&nbsp;</td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_state', $aInfo->bx_affiliate_state, 'maxlength="32" onChange="resetZoneSelected(this.form);"'); ?></td>
-                        </tr>
-              <?php
-                  }
-              ?>
-                      </table></td>
-                    </tr>
-                    <tr>
-                      <td><?php echo xtc_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
-                    </tr>
-                    <tr>
-                      <td class="formAreaTitle"><?php echo CATEGORY_CONTACT; ?></td>
-                    </tr>
-                    <tr>
-                      <td class="formArea"><table border="0" cellspacing="2" cellpadding="2">
-                        <tr>
-                          <td class="main"><?php echo ENTRY_TELEPHONE_NUMBER; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_telephone', $aInfo->bx_affiliate_telephone, 'maxlength="32"'); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main"><?php echo ENTRY_FAX_NUMBER; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_fax', $aInfo->bx_affiliate_fax, 'maxlength="32"'); ?></td>
-                        </tr>
-                        <tr>
-                          <td class="main"><?php echo TABLE_HEADING_USERHOMEPAGE; ?></td>
-                          <td class="main"><?php echo xtc_draw_input_field('bx_affiliate_homepage', $aInfo->bx_affiliate_homepage, 'maxlength="64"', true); ?></td>
-                        </tr>
-                      </table></td>
-                    </tr>
-                    <tr>
-                      <td><?php echo xtc_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
-                    </tr>
-                    <tr>
-                      <td align="right" class="main">
-                        <input type="submit" class="button float_right" onClick="this.blur();" value="<?php echo BUTTON_UPDATE; ?>">
-                        <?php echo ' <a class="button float_right" onClick="this.blur();" href="' . xtc_href_link(BX_FILENAME_AFFILIATES, xtc_get_all_get_params(array('action'))) .'">' . BUTTON_CANCEL . '</a>'; ?>
-                      </td>
-                    </tr></form>
-                  </table>
-
-              </article> <!-- .bx-panel //-->
+                <div class="bx-panel-title"><?php echo BX_AFFILIATES_TEXT_EVALUATION_TITLE; ?></div>
+                <!-- TODO: Affiliate-Auswertung -- Klicks, Sales, Provisionsverlauf, Auszahlungen für diesen Partner -->
+                <p class="main"><?php echo BX_AFFILIATES_TEXT_EVALUATION_PLACEHOLDER; ?></p>
+              </article>
             </section>
 
-            <!-- Sidebar (Rechts) -->
-             <aside class="bx-sidebar">
-              <?php
-              $gender_values = array(
-                'm' => BX_MALE,
-                'f' => BX_FEMALE,
-                'd' => BX_DIVERSE,
-              );
-              $gender_option = '<option value="" disabled selected hidden>Bitte wählen...</option>'.PHP_EOL;
+            <!-- Sidebar (Rechts): persönliche Daten bearbeiten -->
+            <aside class="bx-sidebar">
+              <?php if (is_object($aInfo)) : ?>
+                <div class="bx-headboard bx-headboard--secondary">
+                  <strong><?php echo $gender_values[$aInfo->bx_affiliate_gender] . ' ' . xtc_output_string($aInfo->bx_affiliate_firstname) . ' ' . xtc_output_string($aInfo->bx_affiliate_lastname); ?></strong>
+                </div>
 
-              foreach ($gender_values as $key => $value) {
-                if($aInfo->bx_affiliate_gender == $key) {
-                  $gender_option .= '<option value="' . $key . '" selected>' . $value . '</option>' . PHP_EOL;
-                  continue;
-                }
-                $gender_option .= '<option value="' . $key . '">' . $value . '</option>' . PHP_EOL;
-              }
+                <?php echo xtc_draw_form('affiliate', BX_FILENAME_AFFILIATES, xtc_get_all_get_params(array('action')) . 'action=update', 'post'); ?>
 
-              if(is_object($aInfo)) {
-                echo '<div class="bx-headboard bx-headboard--secondary">'. PHP_EOL
-                   . '<strong>' . $gender_values[$aInfo->bx_affiliate_gender] . ' ' . $aInfo->bx_affiliate_firstname . ' ' . $aInfo->bx_affiliate_lastname . '</strong>'
-                   . '</div>';
-                echo '<form action="/submit" method="POST">
-                      <div class="bx-panel">
-                        <div class="bx-panel-title">'.CATEGORY_PERSONAL.'</div>
-                        <div class="bx-form-group">
-                          <label for="bx_affiliate_gender">Anrede</label>
-                          <div class="bx-select-wrapper">
-                            <select id="bx_affiliate_gender" name="bx_affiliate_gender" class="bx-select" required>
-                              ' . $gender_option . '
-                            </select>
-                          </div>
-                        </div>
-
-                        <div class="bx-form-group">
-                          <label for="bx_affiliate_firstname">Vorname</label>
-                          <input type="text" id="bx_affiliate_firstname" name="bx_affiliate_firstname" value="' . htmlspecialchars($aInfo->bx_affiliate_firstname) . '" class="bx-input" required placeholder="z. B. Max">
-                        </div>
-
-                        <div class="bx-form-group">
-                          <label for="bx_affiliate_lastname">Nachname</label>
-                          <input type="text" id="bx_affiliate_lastname" name="bx_affiliate_lastname" value="' . htmlspecialchars($aInfo->bx_affiliate_lastname) . '" class="bx-input" required placeholder="z. B. Mustermann">
-                        </div>
-
-                        <div class="bx-form-group">
-                          <label for="bx_affiliate_email">E-Mail</label>
-                          <input type="email" id="bx_affiliate_email" name="bx_affiliate_email_address" value="' . htmlspecialchars($aInfo->bx_affiliate_email_address) . '" class="bx-input" required placeholder="z. B. max.mustermann@example.com">
-                        </div>
-                      </div>';
-                      
-                      echo '<div class="bx-panel">
-                        <div class="bx-panel-title">'.CATEGORY_COMPANY.'</div>
-                        <div class="bx-form-group">
-                          <label for="bx_affiliate_company">'.ENTRY_COMPANY.'</label>
-                          <input type="text" id="bx_affiliate_company" name="bx_affiliate_company" value="' . htmlspecialchars($aInfo->bx_affiliate_company) . '" class="bx-input" required placeholder="z. B. Musterfirma GmbH">
-                        </div>
-                        <div class="bx-form-group">
-                          <label for="bx_affiliate_company_taxid">'.BX_ENTRY_AFFILIATE_COMPANY_TAXID.'</label>
-                          <input type="text" id="bx_affiliate_company_taxid" name="bx_affiliate_company_taxid" value="' . htmlspecialchars($aInfo->bx_affiliate_company_taxid) . '" class="bx-input" required placeholder="z. B. 123/456/7890">
-                        </div>
-                      </div>';
-
-                      echo '<div class="bx-panel">
-                        <div class="bx-panel-title">'.CATEGORY_ADDRESS.'</div>
-                        <div class="bx-form-group">
-                          <label for="bx_affiliate_street_address">'.ENTRY_STREET_ADDRESS.'</label>
-                          <input type="text" id="bx_affiliate_street_address" name="bx_affiliate_street_address" value="' . htmlspecialchars($aInfo->bx_affiliate_street_address) . '" class="bx-input" required placeholder="z. B. Musterstraße 1">
-                        </div>
-                        <div class="bx-form-group">
-                          <label for="bx_affiliate_postcode">'.ENTRY_POST_CODE.'</label>
-                          <input type="text" id="bx_affiliate_postcode" name="bx_affiliate_postcode" value="' . htmlspecialchars($aInfo->bx_affiliate_postcode) . '" class="bx-input" required placeholder="z. B. 12345">
-                        </div>
-                        <div class="bx-form-group">
-                          <label for="bx_affiliate_city">'.ENTRY_CITY.'</label>
-                          <input type="text" id="bx_affiliate_city" name="bx_affiliate_city" value="' . htmlspecialchars($aInfo->bx_affiliate_city) . '" class="bx-input" required placeholder="z. B. Musterstadt">
-                        </div>
-                        <div class="bx-form-group">
-                          <label for="bx_affiliate_country">'.ENTRY_COUNTRY.'</label>
-                          <input type="text" id="bx_affiliate_country" name="bx_affiliate_country" value="' . htmlspecialchars($aInfo->bx_affiliate_country) . '" class="bx-input" required placeholder="z. B. Deutschland">
-                        </div>
-                      </div>';
-
-                      echo '<button type="submit" class="bx-btn">Einstellungen speichern</button>
+                  <div class="bx-panel">
+                    <div class="bx-panel-title"><?php echo CATEGORY_PERSONAL; ?></div>
+                    <div class="bx-form-group">
+                      <label for="bx_affiliate_gender"><?php echo ENTRY_GENDER; ?></label>
+                      <div class="bx-select-wrapper">
+                        <?php echo xtc_draw_pull_down_menu('bx_affiliate_gender', get_customers_gender(), $aInfo->bx_affiliate_gender, 'id="bx_affiliate_gender" class="bx-select" required'); ?>
                       </div>
-                      </form>';
-              } else {
-                echo '<div class="bx-headboard bx-headboard--secondary">'. PHP_EOL
-                   . '<strong>' . BX_AFFILIATES_HEADING_TITLE . '</strong>'
-                   . '</div>';
-              }
-              ?>
-                <?php
+                    </div>
+                    <div class="bx-form-group">
+                      <label for="bx_affiliate_firstname"><?php echo ENTRY_FIRST_NAME; ?></label>
+                      <?php echo xtc_draw_input_field('bx_affiliate_firstname', $aInfo->bx_affiliate_firstname, 'id="bx_affiliate_firstname" class="bx-input" maxlength="32" required'); ?>
+                    </div>
+                    <div class="bx-form-group">
+                      <label for="bx_affiliate_lastname"><?php echo ENTRY_LAST_NAME; ?></label>
+                      <?php echo xtc_draw_input_field('bx_affiliate_lastname', $aInfo->bx_affiliate_lastname, 'id="bx_affiliate_lastname" class="bx-input" maxlength="32" required'); ?>
+                    </div>
+                    <div class="bx-form-group">
+                      <label for="bx_affiliate_email_address"><?php echo ENTRY_EMAIL_ADDRESS; ?></label>
+                      <?php echo xtc_draw_input_field('bx_affiliate_email_address', $aInfo->bx_affiliate_email_address, 'id="bx_affiliate_email_address" class="bx-input" type="email" maxlength="96" required'); ?>
+                    </div>
+                  </div>
 
-                  $heading  = array();
-                  $contents = array();
+                  <div class="bx-panel">
+                    <div class="bx-panel-title"><?php echo CATEGORY_COMPANY; ?></div>
+                    <div class="bx-form-group">
+                      <label for="bx_affiliate_company"><?php echo ENTRY_COMPANY; ?></label>
+                      <?php echo xtc_draw_input_field('bx_affiliate_company', $aInfo->bx_affiliate_company, 'id="bx_affiliate_company" class="bx-input" maxlength="32"'); ?>
+                    </div>
+                    <div class="bx-form-group">
+                      <label for="bx_affiliate_company_taxid"><?php echo BX_ENTRY_AFFILIATE_COMPANY_TAXID; ?></label>
+                      <?php echo xtc_draw_input_field('bx_affiliate_company_taxid', $aInfo->bx_affiliate_company_taxid, 'id="bx_affiliate_company_taxid" class="bx-input" maxlength="64"'); ?>
+                    </div>
+                  </div>
 
-                  if(is_object($aInfo)) {
-                    $heading[]  = array('text' => $gender_values[$aInfo->bx_affiliate_gender] . ' '
-                                                . $aInfo->bx_affiliate_firstname . ' ' 
-                                                . $aInfo->bx_affiliate_lastname);
-                  
-                    $contents[] = array('text' => xtc_draw_pull_down_menu('bx_affiliate_gender', get_customers_gender(), $aInfo->bx_affiliate_gender));
-                  }
+                  <div class="bx-panel">
+                    <div class="bx-panel-title"><?php echo CATEGORY_ADDRESS; ?></div>
+                    <div class="bx-form-group">
+                      <label for="bx_affiliate_street_address"><?php echo ENTRY_STREET_ADDRESS; ?></label>
+                      <?php echo xtc_draw_input_field('bx_affiliate_street_address', $aInfo->bx_affiliate_street_address, 'id="bx_affiliate_street_address" class="bx-input" maxlength="64" required'); ?>
+                    </div>
+                    <div class="bx-form-group">
+                      <label for="bx_affiliate_postcode"><?php echo ENTRY_POST_CODE; ?></label>
+                      <?php echo xtc_draw_input_field('bx_affiliate_postcode', $aInfo->bx_affiliate_postcode, 'id="bx_affiliate_postcode" class="bx-input" maxlength="8" required'); ?>
+                    </div>
+                    <div class="bx-form-group">
+                      <label for="bx_affiliate_city"><?php echo ENTRY_CITY; ?></label>
+                      <?php echo xtc_draw_input_field('bx_affiliate_city', $aInfo->bx_affiliate_city, 'id="bx_affiliate_city" class="bx-input" maxlength="32" required'); ?>
+                    </div>
+                    <div class="bx-form-group">
+                      <label for="bx_affiliate_country_id"><?php echo ENTRY_COUNTRY; ?></label>
+                      <div class="bx-select-wrapper">
+                        <?php echo xtc_draw_pull_down_menu('bx_affiliate_country_id', xtc_get_countries(), $aInfo->bx_affiliate_country_id, 'id="bx_affiliate_country_id" class="bx-select"'); ?>
+                      </div>
+                    </div>
+                  </div>
 
-                  if ( (xtc_not_null($heading)) && (xtc_not_null($contents)) ) {
-                    $box = new box;
-                    echo $box->infoBox($heading, $contents);
-                  }
-                ?>
+                  <div class="bx-form-actions">
+                    <button type="submit" class="bx-btn"><?php echo BUTTON_UPDATE; ?></button>
+                    <a class="bx-btn--secondary" href="<?php echo xtc_href_link(BX_FILENAME_AFFILIATES, xtc_get_all_get_params(array('action'))); ?>"><?php echo BUTTON_CANCEL; ?></a>
+                  </div>
+                </form>
+              <?php else : ?>
+                <div class="bx-headboard bx-headboard--secondary"><strong><?php echo TEXT_INFO_NO_SELECTION_HEADING; ?></strong></div>
+                <p class="error_message"><?php echo TEXT_INFO_NO_SELECTION; ?></p>
+              <?php endif; ?>
             </aside>
           </div>
 <?php
@@ -982,7 +785,7 @@ echo '</pre>';
                 if (is_object($aInfo) && isset($affiliate_detail_templates[(int)$aInfo->bx_affiliate_id])) {
                   echo $affiliate_detail_templates[(int)$aInfo->bx_affiliate_id];
                 } else {
-                  echo '<div class="bx-headboard bx-headboard--secondary"><strong>' . TEXT_INFO_NO_SELECTION_HEADING . '</strong></div><p>' . TEXT_INFO_NO_SELECTION . '</p>';
+                  echo '<div class="bx-headboard bx-headboard--secondary"><strong>' . TEXT_INFO_NO_SELECTION_HEADING . '</strong></div><p class="error_message">' . TEXT_INFO_NO_SELECTION . '</p>';
                 }
                 ?>
             </aside>

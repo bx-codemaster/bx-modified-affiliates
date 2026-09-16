@@ -26,6 +26,17 @@
  * Lightweight Admin Component & Grid Framework
  */
 
+
+/**
+ * Standard-CSS erweitern
+ */
+.error_message {
+  margin: 0.5rem 0;
+  border-radius: var(--bx-radius);
+  box-sizing: border-box;
+}
+
+
 /* ==========================================================================
    1. TOKENS & VARIABLES
    ========================================================================== */
@@ -318,6 +329,37 @@ html {
 
 .bx-btn:hover {
   background-color: var(--bx-primary-hover);
+}
+
+.bx-form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.bx-form-actions .bx-btn,
+.bx-form-actions .bx-btn--secondary {
+  width: auto;
+  flex: 1;
+}
+
+.bx-btn--secondary {
+  display: inline-block;
+  padding: 0.875rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  color: var(--bx-primary);
+  background-color: transparent;
+  border: 1.5px solid var(--bx-border-color);
+  border-radius: var(--bx-radius);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.bx-btn--secondary:hover {
+  background-color: var(--bx-bg-input);
 }
 
 /* Accordion Card (<details> Modul) */

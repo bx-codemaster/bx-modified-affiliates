@@ -3,21 +3,21 @@
     "scopes": {
         "shop-root": {
             "hashes": {
-                "/admin/bx_modified_affiliates.php": "bd01d7279bc9fb41e025a8bb79de2f6c",
+                "/admin/bx_modified_affiliates.bak": "bb2bb64bef9d42fce1147a38d1cb4fbf",
+                "/admin/bx_modified_affiliates.php": "4891cf3082aa439490e61bd467ef2277",
                 "/admin/images/icons/heading/bx_modified_affiliates.png": "5115d5a257fff330e9f4b172f04129d7",
-                "/admin/includes/extra/css/bx_modified_affiliates.php": "8e441646c97bf798ed0cdfb7f66ef438",
+                "/admin/includes/extra/css/bx_modified_affiliates.css.php": "196e1a3748dc38ecfe44a3367e85599f",
                 "/admin/includes/extra/filenames/bx_modified_affiliates.php": "4dc87c73a6636d073b902e8be2266e01",
                 "/admin/includes/extra/functions/bx_modified_affiliates.php": "60b45bb532bfbbec3aa836c19888cc55",
                 "/admin/includes/extra/javascript/bx_modified_affiliates.php": "99ff52c7d6e0d6a002d1de200a4a4846",
                 "/admin/includes/extra/menu/bx_modified_affiliates.php": "d9f0c366b7934d073a3ae70a2de7db3e",
-                "/admin/includes/modules/system/bx_modified_affiliates.php": "4d6639c08f6739e110d4f92b81f772a1",
-                "/affiliates.zip": "8498f2eea1777cf57988a976d584f1a6",
+                "/admin/includes/modules/system/bx_modified_affiliates.php": "20b050f14948813d3c25a93f686282f5",
                 "/includes/extra/application_top/application_top_end/bx_affiliate_tracking.php": "429d677e21440382fc320afb1ea8897f",
-                "/includes/extra/checkout/checkout_process_end/bx_affiliate_checkout.php": "bc3182571c482ac8be428228ed97d101",
+                "/includes/extra/checkout/checkout_process_end/bx_affiliate_checkout.php": "aed11c8d625f805c60e674168613f959",
                 "/includes/extra/database_tables/bx_modified_affiliates.php": "72be0959a2f92a4a38557b86ea612a5e",
-                "/lang/english/extra/admin/bx_modified_affiliates.php": "14ebe175b7d0d29893d7405f76edc72e",
-                "/lang/english/modules/system/bx_modified_affiates.php": "4762c9b997a1d9abb12bc336cd572403",
-                "/lang/german/extra/admin/bx_modified_affiliates.php": "9fda9803a4d333eb7d916a8f64448577",
+                "/lang/english/extra/admin/bx_modified_affiliates.lang.english.php": "192ef17d8ba76227fe606d71f5c5ea82",
+                "/lang/english/modules/system/bx_modified_affiates.php": "391fd2366f11c3fa7116fc2f13840e42",
+                "/lang/german/extra/admin/bx_modified_affiliates.lang.german.php": "d30e9aa08b434b28bb2e722d839ddd0e",
                 "/lang/german/modules/system/bx_modified_affiliates.php": "14b7c6d8ac47e79c2b7dc4d675b6fa80"
             }
         },
